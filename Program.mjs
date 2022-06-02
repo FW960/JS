@@ -1,4 +1,4 @@
 "use strict";
 import _ from "lodash";
 
-console.log(_.random(0, 100));
+for(let i = 0; i <= 9; console.log(i++)){}
