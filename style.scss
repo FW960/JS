@@ -1,0 +1,35 @@
+$cellSize: 150px;
+
+$wrapperWidth: 1350px;
+
+.wrapper {
+    margin: 0 auto;
+    width: $wrapperWidth + 4px;
+    height: 100vh;
+
+    .table {
+        display: flex;
+        flex-wrap: wrap;
+        border: 1px solid #000;
+        box-sizing: border-box;
+        margin-top: calc(50vh - 677px);
+
+        .cell {
+            width: $cellSize;
+            height: $cellSize;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: $cellSize /2;
+            padding: $cellSize /4;
+            font-size: 30px;
+        }
+
+        .blackCell {
+            background-color: #000;
+        }
+
+        .whiteCell {
+            background-color: #fff;
+        }
+    }
+}
