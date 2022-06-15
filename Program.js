@@ -6,11 +6,11 @@ const $cart = document.createElement("div");
 
 $cart.classList.add("element");
 
-const $elements = document.querySelector(".elements");
+const $headerElements = document.querySelector(".headerElements");
 
-$cart.textContent = "Cart";
+$cart.textContent = "There is no goods in your cart at the moment";
 
-$elements.append($cart);
+$headerElements.append($cart);
 
 const $cartMenu = document.createElement("div");
 
@@ -24,21 +24,61 @@ class Shop
 
     productsDB = new ProductsDataBase();
 
-    AddToCart(product, cart) 
+    AddToCart(product, cart, calcCartPrice, calcAmountOfGoods) 
     {
-        cart.goods.push(product);
+        for (let i = 0; i < cart.goods.length; i++)
+        {
+            console.log(i);
+
+            if (cart.goods[i].id == product.id)
+            {
+                cart.goods[i].AmountInCart++;
+                break;
+            }
+
+            if (i == cart.goods.length - 1)
+            {
+                cart.goods.push(product);
+                product.AmountInCart = 1;
+                break;
+            }
+        }
+
+        if (cart.goods.length == 0)
+        {
+            cart.goods.push(product);
+            product.AmountInCart = 1;
+        }
+
+
+        enumCartGoogsInHeader(calcCartPrice(cart), calcAmountOfGoods(cart));
+
+        if (!cartIsDisplayed)
+        {
+            $cartMenu.innerHTML = "";
+            enumCartGoodsInside(cart);
+        }
+
     }
 
     RemoveFromCart(product, cart) 
     {
-        let count = 0;
-
         for (let i = 0; i < cart.goods.length; i++)
         {
             if (product.id == cart.goods[i].id)
             {
-                cart.goods.splice(i, 1); break;
+                if (cart.goods[i].AmountInCart > 0)
+                    cart.goods[i].AmountInCart--;
+
+                if(cart.goods[i].AmountInCart == 0)
+                    cart.goods.splice(i, 1);
             }
+        }
+
+        if (!cartIsDisplayed)
+        {
+            $cartMenu.innerHTML = "";
+            enumCartGoodsInside(cart);
         }
     }
 
@@ -47,9 +87,20 @@ class Shop
         let wholePrice = 0;
 
         for (let i = 0; i < cart.goods.length; i++)
-            wholePrice += cart.goods[i].Price;
+        {
+            wholePrice += (cart.goods[i].Price * cart.goods[i].AmountInCart);
+        }
 
         return wholePrice;
+    }
+    CalculateAmountOfGoods(cart)
+    {
+        let amount = 0;
+
+        for (let i = 0; i < cart.goods.length; i++)
+            amount += cart.goods[i].AmountInCart;
+
+        return amount;
     }
     AddNewProductToDB(Name, Price, Manufacturer, id)
     {
@@ -81,7 +132,7 @@ class ProductsDataBase
 
 class Product
 {
-    constructor(Name, Price, Manufacturer, id)
+    constructor(Name, Price, Manufacturer, id, img)
     {
         this.Name = Name;
 
@@ -90,6 +141,10 @@ class Product
         this.Manufacturer = Manufacturer;
 
         this.id = id;
+
+        this.AmountInCart = 0;
+
+        this.img = img;
     }
 }
 
@@ -127,20 +182,12 @@ function displayCatalogElems()
         $elemButtonsContainer.classList.add("elemButtonsContainer");
 
         let $addToCartButton = document.createElement("div");
-        
+
         $addToCartButton.textContent = "Add";
-        
+
         $addToCartButton.classList.add("addToCartButton");
-        
-        $addToCartButton.addEventListener("click", shop.AddToCart.bind(shop.AddToCart, shop.productsDB.allProducts[i], shop.cart));
 
-        let $removeFromCartButton = document.createElement("div");
-
-        $removeFromCartButton.textContent = "Remove";
-
-        $removeFromCartButton.classList.add("removeFromCartButton");
-
-        $removeFromCartButton.addEventListener("click", shop.RemoveFromCart.bind(shop.RemoveFromCart, shop.productsDB.allProducts[i], shop.cart));      
+        $addToCartButton.addEventListener("click", shop.AddToCart.bind(shop.AddToCart, shop.productsDB.allProducts[i], shop.cart, shop.CalculateCartPrice, shop.CalculateAmountOfGoods));
 
         $catalog.append($productElem);
 
@@ -148,11 +195,11 @@ function displayCatalogElems()
 
         $productElem.append($elemButtonsContainer);
 
-        $elemButtonsContainer.append($addToCartButton, $removeFromCartButton);
+        $elemButtonsContainer.append($addToCartButton);
 
         for (const key in product)
         {
-            if (key == "id")
+            if (key == "id" || key == "AmountInCart" || key == "img")
                 continue;
 
             let $productElemListElement = document.createElement("p");
@@ -161,24 +208,26 @@ function displayCatalogElems()
 
             $productElemListElement.textContent = `${key} ${product[key]}`;
 
+            if (key == "Price")
+                $productElemListElement.textContent += ` $`;
+
             $productElemList.append($productElemListElement);
         }
 
     }
 }
 
-$cart.addEventListener("click", showCart);
+$cart.addEventListener("click", showCart.bind(showCart, shop.cart));
 
 let cartIsDisplayed = true;
 
-function showCart()
+function showCart(cart)
 {
-
     if (cartIsDisplayed)
     {
-        $wrapper.append($cartMenu);
+        enumCartGoodsInside(cart);
 
-        enumCartGoogsAndDisplay(shop, false);
+        $wrapper.append($cartMenu);
 
         cartIsDisplayed = false;
     } else
@@ -189,26 +238,65 @@ function showCart()
     }
 
 }
-
-function enumCartGoogsAndDisplay(shop)
+function enumCartGoodsInside(cart)
 {
-    let $cartElem = document.createElement("p");
+    let $cartMenuElementHeader = document.createElement("h2");
 
-    $cartElem.classList.add("cartMenuElement");
+    $cartMenuElementHeader.textContent = "There is:"; $cartMenuElementHeader.classList.add("cartMenuElement");
 
-    let cartElemInfo = "";
+    $cartMenu.append($cartMenuElementHeader);
 
-    if (shop.cart.goods.length == 0)
+    let $cartMenuElementList = document.createElement("ol");
+
+    $cartMenuElementList.classList.add("cartMenuList");
+
+    for (let i = 0; i < cart.goods.length; i++)
     {
-        $cartElem.textContent = "Cart is Empty";
-    }
-    else
-    {
-        cartElemInfo = `There is ${shop.cart.goods.length} products in your cart with total Price ${shop.CalculateCartPrice(shop.cart)}`; 
-        
-        $cartElem.textContent = cartElemInfo;
+        let $cartMenuElementListProduct = document.createElement("p");
+
+        $cartMenuElementListProduct.textContent = `${cart.goods[i].Name} - ${cart.goods[i].AmountInCart}. Price ${cart.goods[i].AmountInCart * cart.goods[i].Price} $`;
+
+        $cartMenuElementListProduct.classList.add("cartMenuListProduct");
+
+        let $cartMenuButtons = document.createElement("div");
+
+        $cartMenuButtons.classList.add("cartMenuButtons");
+
+        let $addOneButtonInCart = document.createElement("div");
+
+        $addOneButtonInCart.addEventListener("click", shop.AddToCart.bind(shop.AddToCart, shop.cart.goods[i], shop.cart, shop.CalculateCartPrice, shop.CalculateAmountOfGoods))
+
+        $addOneButtonInCart.classList.add("addOne"); $addOneButtonInCart.textContent = "+";
+
+        let $removeOneButtonInCart = document.createElement("div"); $removeOneButtonInCart.textContent = "-";
+
+        $removeOneButtonInCart.addEventListener("click", shop.RemoveFromCart.bind(shop.RemoveFromCart, shop.cart.goods[i], shop.cart))
+
+        $removeOneButtonInCart.classList.add("removeOne");
+
+        $cartMenuButtons.append($addOneButtonInCart, $removeOneButtonInCart);
+
+        $cartMenuElementListProduct.append($cartMenuButtons);
+
+        $cartMenuElementList.append($cartMenuElementListProduct);
     }
 
-    $cartMenu.append($cartElem);
+    $cartMenu.append($cartMenuElementList);
+}
+
+
+function enumCartGoogsInHeader(cartPrice, amountOfGoods)
+{
+    $cart.remove();
+
+    if (cartPrice == 0)
+    {
+        $cart.textContent = "There is no goods in your cart at the moment"
+    } else if (cartPrice > 0)
+    {
+        $cart.textContent = `There is ${amountOfGoods} goods in your with total price ${cartPrice} $`
+    }
+
+    $headerElements.append($cart);
 }
 

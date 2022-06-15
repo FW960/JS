@@ -17,7 +17,7 @@
   font-size: 20px;
 }
 
-.wrapper header .headerContent .elements {
+.wrapper header .headerContent .headerElements {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -46,10 +46,12 @@
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
   height: 100%;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
 }
 
 .wrapper main .catalog .catalogElement {
-  margin: 5px 10px;
+  margin: 20px 0;
   border: 1px solid #000;
   border-radius: 10px;
   height: 300px;
@@ -84,18 +86,12 @@
   margin: 50% auto 0;
   padding: 10px;
   border: 1px solid #000;
-  background-color: grey;
+  background-color: firebrick;
   text-align: center;
 }
 
-.wrapper main .catalog .catalogElement .elemButtonsContainer .removeFromCartButton {
-  cursor: pointer;
-  width: 60px;
-  margin: 50% auto 0;
-  padding: 10px;
-  border: 1px solid #000;
-  background-color: grey;
-  text-align: center;
+.wrapper main .catalog .catalogElement .elemButtonsContainer .addToCartButton:hover {
+  background-color: white;
 }
 
 .wrapper footer {
@@ -110,13 +106,13 @@
 
 .wrapper .cartMenu {
   position: absolute;
-  top: 10vh;
+  top: 12vh;
   left: 342.85714px;
   width: 500px;
-  height: 300px;
+  min-height: 300px;
   padding: 20px;
   border: 1px solid #000;
-  background-color: #888;
+  background-color: firebrick;
   border-radius: 10px;
 }
 
@@ -124,5 +120,36 @@
   font-size: 20px;
   padding-bottom: 20px;
   text-align: center;
+}
+
+.wrapper .cartMenu .cartMenuList {
+  list-style: none;
+  font-size: 20px;
+}
+
+.wrapper .cartMenu .cartMenuList .cartMenuListProduct {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+}
+
+.wrapper .cartMenu .cartMenuList .cartMenuListProduct .cartMenuButtons {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.wrapper .cartMenu .cartMenuList .cartMenuListProduct .cartMenuButtons .addOne {
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+}
+
+.wrapper .cartMenu .cartMenuList .cartMenuListProduct .cartMenuButtons .removeOne {
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
 }
 /*# sourceMappingURL=style.css.map */
