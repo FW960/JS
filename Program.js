@@ -28,8 +28,6 @@ class Shop
     {
         for (let i = 0; i < cart.goods.length; i++)
         {
-            console.log(i);
-
             if (cart.goods[i].id == product.id)
             {
                 cart.goods[i].AmountInCart++;
@@ -61,7 +59,7 @@ class Shop
 
     }
 
-    RemoveFromCart(product, cart) 
+    RemoveFromCart(product, cart, calcCartPrice, calcAmountOfGoods) 
     {
         for (let i = 0; i < cart.goods.length; i++)
         {
@@ -70,10 +68,12 @@ class Shop
                 if (cart.goods[i].AmountInCart > 0)
                     cart.goods[i].AmountInCart--;
 
-                if(cart.goods[i].AmountInCart == 0)
+                if (cart.goods[i].AmountInCart == 0)
                     cart.goods.splice(i, 1);
             }
         }
+
+        enumCartGoogsInHeader(calcCartPrice(cart), calcAmountOfGoods(cart));
 
         if (!cartIsDisplayed)
         {
@@ -102,7 +102,7 @@ class Shop
 
         return amount;
     }
-    AddNewProductToDB(Name, Price, Manufacturer, id)
+    AddNewProductToDB(Name, Price, Manufacturer, id, img)
     {
         for (let i = 0; i < this.productsDB.allProducts.length; i++)
         {
@@ -110,7 +110,7 @@ class Shop
                 return;
         }
 
-        this.productsDB.allProducts.push(new Product(Name, Price, Manufacturer, id));
+        this.productsDB.allProducts.push(new Product(Name, Price, Manufacturer, id, img));
     }
     RemoveProductFromDB(productId)
     {
@@ -155,11 +155,13 @@ class Cart
 
 let shop = new Shop();
 
-shop.AddNewProductToDB("Banana", 30, "Khyrgish.inc", 0);
+shop.AddNewProductToDB("Peach", 30, "Khyrgish.inc", 0, ["peach", "peach0", "peach1"]);
 
-shop.AddNewProductToDB("Apple", 20, "Khyban.co", 1);
+shop.AddNewProductToDB("Melon", 40, "Khyban.co", 1, ["melon", "melon0", "melon1"]);
 
-shop.AddNewProductToDB("Grape", 25, "Khyban.co", 2);
+shop.AddNewProductToDB("Grape", 25, "Khyban.co", 2, ["grape", "grape0", "grape1"]);
+
+shop.AddNewProductToDB("Pomegranate", 35, "Khyrgish.inc", 3, ["pome", "pome0", "pome1"]);
 
 displayCatalogElems();
 
@@ -173,13 +175,21 @@ function displayCatalogElems()
 
         let $productElemList = document.createElement("ul");
 
+        let $productElemImg = document.createElement("img");
+
+        let $productElemImgBox = document.createElement("div");
+
+        $productElemImgBox.classList.add("productImgBox");
+
+        $productElemImg.classList.add("productImg");
+
+        $productElemImg.addEventListener("click", displayProductPhotos.bind(displayProductPhotos, product.img));
+
+        $productElemImg.setAttribute("src", `img/${product.img[0]}.png`)
+
         $productElemList.classList.add("catalogElementList");
 
         $productElem.classList.add("catalogElement");
-
-        let $elemButtonsContainer = document.createElement("div");
-
-        $elemButtonsContainer.classList.add("elemButtonsContainer");
 
         let $addToCartButton = document.createElement("div");
 
@@ -189,13 +199,15 @@ function displayCatalogElems()
 
         $addToCartButton.addEventListener("click", shop.AddToCart.bind(shop.AddToCart, shop.productsDB.allProducts[i], shop.cart, shop.CalculateCartPrice, shop.CalculateAmountOfGoods));
 
-        $catalog.append($productElem);
+        $productElemImgBox.append($productElemImg);
+
+        $productElem.append($productElemImgBox);
 
         $productElem.append($productElemList);
 
-        $productElem.append($elemButtonsContainer);
+        $productElem.append($addToCartButton);
 
-        $elemButtonsContainer.append($addToCartButton);
+        $catalog.append($productElem);
 
         for (const key in product)
         {
@@ -270,7 +282,7 @@ function enumCartGoodsInside(cart)
 
         let $removeOneButtonInCart = document.createElement("div"); $removeOneButtonInCart.textContent = "-";
 
-        $removeOneButtonInCart.addEventListener("click", shop.RemoveFromCart.bind(shop.RemoveFromCart, shop.cart.goods[i], shop.cart))
+        $removeOneButtonInCart.addEventListener("click", shop.RemoveFromCart.bind(shop.RemoveFromCart, shop.cart.goods[i], shop.cart, shop.CalculateCartPrice, shop.CalculateAmountOfGoods))
 
         $removeOneButtonInCart.classList.add("removeOne");
 
@@ -300,3 +312,61 @@ function enumCartGoogsInHeader(cartPrice, amountOfGoods)
     $headerElements.append($cart);
 }
 
+function displayProductPhotos(photoSource)
+{
+    let $productPhotoLeft = document.createElement("div");
+
+    $productPhotoLeft.classList.add("productPhotoLeft");
+
+    $productPhotoLeft.addEventListener("click", prevPhoto.bind(prevPhoto, photoSource));
+
+    let $productPhotoRight = document.createElement("div");
+
+    $productPhotoRight.addEventListener("click", nextPhoto.bind(nextPhoto, photoSource));
+
+    $productPhotoRight.classList.add("productPhotoRight");
+
+    let $productPhoto = document.createElement("div");
+
+    let $productPhotosExitButton = document.createElement("div");
+
+    $productPhotosExitButton.classList.add("productPhotosExitButton");
+
+    $productPhotosExitButton.textContent = "x";
+
+    $productPhoto.classList.add("productPhoto");
+
+    $productPhoto.append($productPhotoLeft, $productPhotoRight);
+
+    let $productPhotos = document.createElement("div");
+
+    let $productPhotosBox = document.createElement("div");
+
+    $productPhotos.classList.add("productPhotos");
+
+    $productPhotosBox.classList.add("productPhotosBox");
+
+    $productPhotos.append($productPhotosBox);
+
+    $productPhotosBox.append($productPhotosExitButton);
+
+    $productPhotosBox.append($productPhoto);
+
+    $wrapper.append($productPhotos);
+
+    $productPhotosExitButton.addEventListener("click", closeProductPhotos.bind(closeProductPhotos, $productPhotos))
+}
+function closeProductPhotos($productPhotos)
+{
+    $productPhotos.innerHTML = "";
+
+    $productPhotos.remove();
+}
+function nextPhoto(photoSource)
+{
+    alert(1);
+}
+function prevPhoto(photoSource)
+{
+alert(2);
+}
