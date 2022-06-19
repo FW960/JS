@@ -8,9 +8,13 @@ $cart.classList.add("element");
 
 const $headerElements = document.querySelector(".headerElements");
 
-$cart.textContent = "There is no goods in your cart at the moment";
+$cart.textContent = "Корзина пуста";
 
 $headerElements.append($cart);
+
+const $cartMenuBox = document.createElement("div");
+
+$cartMenuBox.classList.add("cartMenuBox");
 
 const $cartMenu = document.createElement("div");
 
@@ -54,7 +58,7 @@ class Shop
         if (!cartIsDisplayed)
         {
             $cartMenu.innerHTML = "";
-            enumCartGoodsInside(cart);
+            enumGoodsInsideCart(cart);
         }
 
     }
@@ -78,7 +82,7 @@ class Shop
         if (!cartIsDisplayed)
         {
             $cartMenu.innerHTML = "";
-            enumCartGoodsInside(cart);
+            enumGoodsInsideCart(cart);
         }
     }
 
@@ -102,7 +106,7 @@ class Shop
 
         return amount;
     }
-    AddNewProductToDB(Name, Price, Manufacturer, id, img)
+    AddNewProductToDB(Name, Price, Manufacturer, id, img, description)
     {
         for (let i = 0; i < this.productsDB.allProducts.length; i++)
         {
@@ -110,7 +114,7 @@ class Shop
                 return;
         }
 
-        this.productsDB.allProducts.push(new Product(Name, Price, Manufacturer, id, img));
+        this.productsDB.allProducts.push(new Product(Name, Price, Manufacturer, id, img, description));
     }
     RemoveProductFromDB(productId)
     {
@@ -132,19 +136,24 @@ class ProductsDataBase
 
 class Product
 {
-    constructor(Name, Price, Manufacturer, id, img)
+    constructor(Name, Price, Manufacturer, id, img, description)
     {
         this.Name = Name;
 
         this.Price = Price;
-
-        this.Manufacturer = Manufacturer;
 
         this.id = id;
 
         this.AmountInCart = 0;
 
         this.img = img;
+
+        this.imgCount = 1;
+
+        this.description = description;
+
+        this.Manufacturer = Manufacturer;
+
     }
 }
 
@@ -155,13 +164,13 @@ class Cart
 
 let shop = new Shop();
 
-shop.AddNewProductToDB("Peach", 30, "Khyrgish.inc", 0, ["peach", "peach0", "peach1"]);
+shop.AddNewProductToDB("Персик 'Альберт'", 30, "Khyrgish.inc", 0, ["peach", "peach0", "peach1", "peach2"], "Персики 'Альберт' Самые сочные, свежие и приятно махровые...Конечно же наши персики! Думаю вам уже захотелось попробовать и ощутить этот вкус на своих устах...Чего вы ждёте?");
 
-shop.AddNewProductToDB("Melon", 40, "Khyban.co", 1, ["melon", "melon0", "melon1"]);
+shop.AddNewProductToDB("Дыня 'Торпеда'", 40, "Khyban.co", 1, ["melon", "melon0", "melon1", "melon2"], "То самое сладкое и при этом приятно освежающее ощущение лета! Почувствуйте настоящий вкус этого дара Азербайджана");
 
-shop.AddNewProductToDB("Grape", 25, "Khyban.co", 2, ["grape", "grape0", "grape1"]);
+shop.AddNewProductToDB("Виноград 'Изабелла'", 25, "Khyban.co", 2, ["grape", "grape0", "grape1", "grape2"], "Такой же томный и желанный, как настоящая красавица Изабелла из восточных сказок. Для вас только отборный виноград, упругий и свежий!");
 
-shop.AddNewProductToDB("Pomegranate", 35, "Khyrgish.inc", 3, ["pome", "pome0", "pome1"]);
+shop.AddNewProductToDB("Гранат 'Ачик Анор'", 35, "Khyrgish.inc", 3, ["pome", "pome0", "pome1", "pome2"], "Представьте это ощущение, когда разламываешь гранат, ощущаешь этот аромат и приятную свежесть сока... Зачем представлять, если можно купить и ощутить это самому?");
 
 displayCatalogElems();
 
@@ -173,29 +182,29 @@ function displayCatalogElems()
 
         let $productElem = document.createElement("div");
 
-        let $productElemList = document.createElement("ul");
+        let $productElemImgBox = document.createElement("div");
 
         let $productElemImg = document.createElement("img");
 
-        let $productElemImgBox = document.createElement("div");
+        let $productElemList = document.createElement("ul");
+
+        let $addToCartButton = document.createElement("div");
+
+        $productElem.classList.add("catalogElement");
 
         $productElemImgBox.classList.add("productImgBox");
 
         $productElemImg.classList.add("productImg");
 
-        $productElemImg.addEventListener("click", displayProductPhotos.bind(displayProductPhotos, product.img));
+        $productElemImg.setAttribute("src", `img/${product.img[0]}.png`);
 
-        $productElemImg.setAttribute("src", `img/${product.img[0]}.png`)
+        $productElemImg.addEventListener("click", displayProductPhotos.bind(displayProductPhotos, product));
 
         $productElemList.classList.add("catalogElementList");
 
-        $productElem.classList.add("catalogElement");
-
-        let $addToCartButton = document.createElement("div");
-
-        $addToCartButton.textContent = "Add";
-
         $addToCartButton.classList.add("addToCartButton");
+
+        $addToCartButton.textContent = `${product.Price} ₽`;
 
         $addToCartButton.addEventListener("click", shop.AddToCart.bind(shop.AddToCart, shop.productsDB.allProducts[i], shop.cart, shop.CalculateCartPrice, shop.CalculateAmountOfGoods));
 
@@ -211,17 +220,17 @@ function displayCatalogElems()
 
         for (const key in product)
         {
-            if (key == "id" || key == "AmountInCart" || key == "img")
+            if (key == "id" || key == "AmountInCart" || key == "img" || key == "imgCount" || key == "Price")
                 continue;
 
             let $productElemListElement = document.createElement("p");
 
+            if (key == "description")
+                $productElemListElement.classList.add("productDescription");
+
             $productElemListElement.classList.add("catalogElementListElement");
 
-            $productElemListElement.textContent = `${key} ${product[key]}`;
-
-            if (key == "Price")
-                $productElemListElement.textContent += ` $`;
+            $productElemListElement.textContent = `${product[key]}`;
 
             $productElemList.append($productElemListElement);
         }
@@ -235,30 +244,33 @@ let cartIsDisplayed = true;
 
 function showCart(cart)
 {
-    if (cartIsDisplayed)
-    {
-        enumCartGoodsInside(cart);
+    let $cartMenuExitButton = document.createElement("div");
 
-        $wrapper.append($cartMenu);
+    $cartMenuExitButton.classList.add("cartMenuExitButton");
 
-        cartIsDisplayed = false;
-    } else
-    {
-        $cartMenu.innerHTML = "";
+    $cartMenuExitButton.textContent = "x";
 
-        $cartMenu.remove(); cartIsDisplayed = true;
-    }
+    $cartMenuExitButton.addEventListener("click", closeCartMenu);
 
+    enumGoodsInsideCart(cart);
+
+    $cartMenuBox.append($cartMenuExitButton);
+
+    $cartMenuBox.append($cartMenu);
+
+    $wrapper.append($cartMenuBox);
+
+    cartIsDisplayed = false;
 }
-function enumCartGoodsInside(cart)
+function enumGoodsInsideCart(cart)
 {
     let $cartMenuElementHeader = document.createElement("h2");
 
-    $cartMenuElementHeader.textContent = "There is:"; $cartMenuElementHeader.classList.add("cartMenuElement");
+    let $cartMenuElementList = document.createElement("ol");
+
+    $cartMenuElementHeader.textContent = "В корзине:"; $cartMenuElementHeader.classList.add("cartMenuElement");
 
     $cartMenu.append($cartMenuElementHeader);
-
-    let $cartMenuElementList = document.createElement("ol");
 
     $cartMenuElementList.classList.add("cartMenuList");
 
@@ -266,21 +278,21 @@ function enumCartGoodsInside(cart)
     {
         let $cartMenuElementListProduct = document.createElement("p");
 
-        $cartMenuElementListProduct.textContent = `${cart.goods[i].Name} - ${cart.goods[i].AmountInCart}. Price ${cart.goods[i].AmountInCart * cart.goods[i].Price} $`;
+        let $cartMenuButtons = document.createElement("div");
+
+        let $addOneButtonInCart = document.createElement("div");
+
+        let $removeOneButtonInCart = document.createElement("div"); $removeOneButtonInCart.textContent = "-";
+
+        $cartMenuElementListProduct.textContent = `${cart.goods[i].Name} - ${cart.goods[i].AmountInCart}. Стоимость ${cart.goods[i].AmountInCart * cart.goods[i].Price} ₽`;
 
         $cartMenuElementListProduct.classList.add("cartMenuListProduct");
 
-        let $cartMenuButtons = document.createElement("div");
-
         $cartMenuButtons.classList.add("cartMenuButtons");
-
-        let $addOneButtonInCart = document.createElement("div");
 
         $addOneButtonInCart.addEventListener("click", shop.AddToCart.bind(shop.AddToCart, shop.cart.goods[i], shop.cart, shop.CalculateCartPrice, shop.CalculateAmountOfGoods))
 
         $addOneButtonInCart.classList.add("addOne"); $addOneButtonInCart.textContent = "+";
-
-        let $removeOneButtonInCart = document.createElement("div"); $removeOneButtonInCart.textContent = "-";
 
         $removeOneButtonInCart.addEventListener("click", shop.RemoveFromCart.bind(shop.RemoveFromCart, shop.cart.goods[i], shop.cart, shop.CalculateCartPrice, shop.CalculateAmountOfGoods))
 
@@ -301,60 +313,74 @@ function enumCartGoogsInHeader(cartPrice, amountOfGoods)
 {
     $cart.remove();
 
-    if (cartPrice == 0)
+    if (amountOfGoods == 0)
     {
-        $cart.textContent = "There is no goods in your cart at the moment"
-    } else if (cartPrice > 0)
+        $cart.textContent = "Корзина пуста"
+    }
+    else if (amountOfGoods == 1)
     {
-        $cart.textContent = `There is ${amountOfGoods} goods in your with total price ${cartPrice} $`
+        $cart.textContent = `В корзине ${amountOfGoods} продукт общей стоимостью в: ${cartPrice} ₽`
+    }
+    else if (amountOfGoods <= 4)
+    {
+        $cart.textContent = `В корзине ${amountOfGoods} продукта общей стоимостью в: ${cartPrice} ₽`
+    }
+    else if (amountOfGoods >= 5)
+    {
+        $cart.textContent = `В корзине ${amountOfGoods} продуктов общей стоимостью в: ${cartPrice} ₽`
     }
 
     $headerElements.append($cart);
 }
 
-function displayProductPhotos(photoSource)
+function displayProductPhotos(product)
 {
-    let $productPhotoLeft = document.createElement("div");
+    let $productPhotos = document.createElement("div");
 
-    $productPhotoLeft.classList.add("productPhotoLeft");
+    let $productPhotosExitButton = document.createElement("div");
 
-    $productPhotoLeft.addEventListener("click", prevPhoto.bind(prevPhoto, photoSource));
+    let $productPhotoBox = document.createElement("div");
 
-    let $productPhotoRight = document.createElement("div");
-
-    $productPhotoRight.addEventListener("click", nextPhoto.bind(nextPhoto, photoSource));
-
-    $productPhotoRight.classList.add("productPhotoRight");
+    let $productPhotoPrev = document.createElement("div");
 
     let $productPhoto = document.createElement("div");
 
-    let $productPhotosExitButton = document.createElement("div");
+    let $productPhotoImg = document.createElement("img");
+
+    let $productPhotoNext = document.createElement("div");
+
+    $productPhotos.classList.add("productPhotos");
 
     $productPhotosExitButton.classList.add("productPhotosExitButton");
 
     $productPhotosExitButton.textContent = "x";
 
+    $productPhotosExitButton.addEventListener("click", closeProductPhotos.bind(closeProductPhotos, $productPhotos));
+
+    $productPhotoBox.classList.add("productPhotoBox");
+
+    $productPhotoPrev.classList.add("productPhotoPrev");
+
+    $productPhotoPrev.addEventListener("click", displayPrevPhoto.bind(displayPrevPhoto, product, $productPhoto, $productPhotoImg));
+
     $productPhoto.classList.add("productPhoto");
 
-    $productPhoto.append($productPhotoLeft, $productPhotoRight);
+    $productPhotoImg.classList.add("productPhotoImg");
 
-    let $productPhotos = document.createElement("div");
+    $productPhotoImg.setAttribute("src", `img/${product.img[product.imgCount]}.jpg`)
 
-    let $productPhotosBox = document.createElement("div");
+    $productPhotoNext.classList.add("productPhotoNext");
 
-    $productPhotos.classList.add("productPhotos");
+    $productPhotoNext.addEventListener("click", displayNextPhoto.bind(displayNextPhoto, product, $productPhoto, $productPhotoImg));
 
-    $productPhotosBox.classList.add("productPhotosBox");
+    $productPhoto.append($productPhotoImg);
 
-    $productPhotos.append($productPhotosBox);
+    $productPhotoBox.append($productPhotoPrev, $productPhoto, $productPhotoNext);
 
-    $productPhotosBox.append($productPhotosExitButton);
-
-    $productPhotosBox.append($productPhoto);
+    $productPhotos.append($productPhotosExitButton, $productPhotoBox);
 
     $wrapper.append($productPhotos);
 
-    $productPhotosExitButton.addEventListener("click", closeProductPhotos.bind(closeProductPhotos, $productPhotos))
 }
 function closeProductPhotos($productPhotos)
 {
@@ -362,11 +388,44 @@ function closeProductPhotos($productPhotos)
 
     $productPhotos.remove();
 }
-function nextPhoto(photoSource)
+function displayPrevPhoto(product, $productPhoto, $productPhotoImg)
 {
-    alert(1);
+    $productPhotoImg.remove();
+
+    if (product.imgCount - 1 == 0)
+    {
+        product.imgCount = product.img.length - 1;
+    } else
+    {
+        product.imgCount -= 1;
+    }
+
+    $productPhotoImg.setAttribute("src", `img/${product.img[product.imgCount]}.jpg`);
+
+    $productPhoto.append($productPhotoImg);
 }
-function prevPhoto(photoSource)
+function displayNextPhoto(product, $productPhoto, $productPhotoImg)
 {
-alert(2);
+    $productPhotoImg.remove();
+
+    if (product.imgCount + 1 == product.img.length)
+    {
+        product.imgCount = 1;
+    } else
+    {
+        product.imgCount += 1;
+    }
+
+    $productPhotoImg.setAttribute("src", `img/${product.img[product.imgCount]}.jpg`);
+
+    $productPhoto.append($productPhotoImg);
 }
+function closeCartMenu()
+{
+    $cartMenu.innerHTML = ""; $cartMenu.remove();
+
+    $cartMenuBox.innerHTML = ""; $cartMenuBox.remove();
+
+    cartIsDisplayed = true;
+}
+
