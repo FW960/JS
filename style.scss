@@ -1,0 +1,28 @@
+$fieldWidthAndHeight: 500px;
+
+.field {
+    display: flex;
+    position: absolute;
+    width: $fieldWidthAndHeight;
+    height: $fieldWidthAndHeight;
+    border: 2px solid #000;
+    top: calc(50vh - 250px);
+    left: calc(50vw - 250px);
+    flex-wrap: wrap;
+    border-collapse: collapse;
+    .cell {
+        height: $fieldWidthAndHeight / 10;
+        width: $fieldWidthAndHeight / 10;
+        border: 1px solid #000;
+        box-sizing: border-box;
+    }
+    .snake{
+        background-color: greenyellow;
+    }
+    .apple{
+        background-color: red;
+    }
+    .tail{
+        background-color: black;
+    }
+}
