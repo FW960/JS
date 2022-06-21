@@ -21,6 +21,10 @@
           box-sizing: border-box;
 }
 
+.field .snakeHead {
+  background-color: forestgreen;
+}
+
 .field .snake {
   background-color: greenyellow;
 }

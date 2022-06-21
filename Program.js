@@ -12,10 +12,6 @@ let snakeTailElems = [];
 
 let direction = [1, 0];
 
-let newTailToCreate = 0;
-
-let isEaten = true;
-
 makeField();
 
 function makeField()
@@ -39,7 +35,7 @@ function gameInit()
     makeField();
 
     const $headElem = $field.querySelector(`#cell-${snakeHeadPos[0]}-${snakeHeadPos[1]}`);
-    $headElem.classList.add("snake");
+    $headElem.classList.add("snakeHead");
 
     snakeHeadElems.push($headElem);
 
@@ -58,6 +54,20 @@ function getPos([x, y])
 
 function headStep()
 {
+    let lastElemPos = [];
+
+    if (snakeTailElems.length == 0)
+    {
+        lastElemPos[0] = snakeHeadPos[0];
+
+        lastElemPos[1] = snakeHeadPos[1];
+    } else if (snakeTailElems.length > 0)
+    {
+        lastElemPos[0] = snakeTailElemsPos[snakeTailElemsPos.length - 1][0];
+
+        lastElemPos[1] = snakeTailElemsPos[snakeTailElemsPos.length - 1][1];
+    }
+
     snakeHeadPos = getNewPos();
 
     if (checkBorder(snakeHeadPos))
@@ -75,32 +85,24 @@ function headStep()
 
         gameInit();
     }
-    
-    newHead.classList.add("snake");
+
+    newHead.classList.add("snakeHead");
 
     snakeHeadElems.push(newHead);
 
-    snakeHeadElems.shift().classList.remove("snake");
+    snakeHeadElems.shift().classList.remove("snakeHead");
 
     if (snakeTailElems.length != 0)
         tailNewPositions(snakeTailElems.length - 1);
 
     if (newHead.classList.contains("apple"))
     {
-        newHead.classList.remove("apple"); isEaten = true;
+        makeTail(lastElemPos);
 
-        makeTail(false);
-    }
+        newHead.classList.remove("apple");
 
-    if (isEaten == true)
         makeNewApple();
-
-    if (newTailToCreate > 0)
-    {
-        if (makeTail(true))
-            newTailToCreate--;
     }
-    
 }
 function checkBorder([x, y])
 {
@@ -116,7 +118,7 @@ function checkBorder([x, y])
 
 gameInit();
 
-setInterval(headStep, 200);
+setInterval(headStep, 250);
 
 document.addEventListener("keydown", changeDirection);
 
@@ -164,54 +166,17 @@ function makeNewApple()
     }
 
     $apple.classList.add("apple");
-
-    isEaten = false;
 }
-function makeTail(couldntMakeNewTail)
+function makeTail(lastElemPos)
 {
-    let newTailPos = [];
+    let newTailElem = getPos(lastElemPos);
 
-    if (snakeTailElems.length == 0)
-    {
-        newTailPos[0] = snakeHeadPos[0] - direction[0];
+    snakeTailElemsPos.push(lastElemPos);
 
-        newTailPos[1] = snakeHeadPos[1] - direction[1];
+    newTailElem.classList.add("snake");
 
-        snakeTailElemsPos.push(newTailPos);
-    }
-    else
-    {
-        
-        newTailPos[0] = snakeTailElemsPos[snakeTailElems.length - 1][0] - direction[0];
+    snakeTailElems.push(newTailElem);
 
-        newTailPos[1] = snakeTailElemsPos[snakeTailElems.length - 1][1] - direction[1];
-
-        if (newTailPos[0] < 0 || newTailPos[0] > 9 || newTailPos[1] < 0 || newTailPos[1] > 9)
-        {
-            if (couldntMakeNewTail == false)
-                newTailToCreate++;
-
-            return false;
-        }
-    }
-
-    let newTail = getPos(newTailPos);
-
-    if (newTail.classList.contains("snake"))
-    {
-        if (couldntMakeNewTail == false)
-            newTailToCreate++;
-
-        return false;
-    }
-
-    newTail.classList.add("snake");
-
-    snakeTailElemsPos.push(newTailPos);
-
-    snakeTailElems.push(newTail);
-
-    return true;
 }
 function tailStep(count)
 {
@@ -259,10 +224,6 @@ function gameOver()
     snakeTailElems = [];
 
     direction = [1, 0];
-
-    isEaten = true;
-
-    newTailToCreate = 0;
 }
 
 function checkIfHeadCollapsedWithTail()
