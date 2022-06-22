@@ -156,9 +156,8 @@
 }
 
 .wrapper .cartMenuBox .cartMenu {
-  position: absolute;
-  top: 20vh;
-  left: 325px;
+  position: relative;
+  margin: calc(50vh - 150px) auto;
   width: 506px;
   min-height: 300px;
   padding: 20px;
@@ -167,7 +166,7 @@
   background-color: white;
 }
 
-.wrapper .cartMenuBox .cartMenu .cartMenuElement {
+.wrapper .cartMenuBox .cartMenu .cartMenuHeader {
   font-size: 20px;
   padding-bottom: 20px;
   text-align: center;
@@ -176,12 +175,16 @@
 .wrapper .cartMenuBox .cartMenu .cartMenuList {
   list-style: none;
   font-size: 20px;
+  margin-bottom: 58px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .wrapper .cartMenuBox .cartMenu .cartMenuList .cartMenuListProduct {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  margin: 20px auto;
 }
 
 .wrapper .cartMenuBox .cartMenu .cartMenuList .cartMenuListProduct .cartMenuButtons {
@@ -195,7 +198,7 @@
           user-select: none;
   background-color: firebrick;
   margin: 0 auto;
-  margin-right: 0;
+  margin-right: 0px;
 }
 
 .wrapper .cartMenuBox .cartMenu .cartMenuList .cartMenuListProduct .cartMenuButtons .addOne {
@@ -222,6 +225,25 @@
 
 .wrapper .cartMenuBox .cartMenu .cartMenuList .cartMenuListProduct .cartMenuButtons .removeOne:hover {
   background-color: white;
+}
+
+.wrapper .cartMenuBox .cartMenu .makeOrderButton {
+  position: absolute;
+  cursor: pointer;
+  width: 106px;
+  left: calc(50% - 53px);
+  bottom: 16px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 5px;
+  background-color: firebrick;
+  border: 1px solid #000;
+  -ms-flex-item-align: end;
+      align-self: flex-end;
+}
+
+.wrapper .cartMenuBox .cartMenu .makeOrderButton:hover {
+  background-color: #fff;
 }
 
 .wrapper .productPhotos {

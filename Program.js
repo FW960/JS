@@ -136,7 +136,7 @@ class ProductsDataBase
 
 class Product
 {
-    constructor(Name, Price, Manufacturer, id, img, description)
+    constructor(Name, Price, id, Manufacturer, img, description)
     {
         this.Name = Name;
 
@@ -164,13 +164,13 @@ class Cart
 
 let shop = new Shop();
 
-shop.AddNewProductToDB("Персик 'Альберт'", 30, "Khyrgish.inc", 0, ["peach", "peach0", "peach1", "peach2"], "Персики 'Альберт' Самые сочные, свежие и приятно махровые...Конечно же наши персики! Думаю вам уже захотелось попробовать и ощутить этот вкус на своих устах...Чего вы ждёте?");
+shop.AddNewProductToDB("Персик 'Альберт'", 30, 0, "Khyrgish.inc", ["peach", "peach0", "peach1", "peach2"], "Персики 'Альберт' Самые сочные, свежие и приятно махровые...Конечно же наши персики! Думаю вам уже захотелось попробовать и ощутить этот вкус на своих устах...Чего вы ждёте?");
 
-shop.AddNewProductToDB("Дыня 'Торпеда'", 40, "Khyban.co", 1, ["melon", "melon0", "melon1", "melon2"], "То самое сладкое и при этом приятно освежающее ощущение лета! Почувствуйте настоящий вкус этого дара Азербайджана");
+shop.AddNewProductToDB("Дыня 'Торпеда'", 40, 1, "Khyban.co", ["melon", "melon0", "melon1", "melon2"], "То самое сладкое и при этом приятно освежающее ощущение лета! Почувствуйте настоящий вкус этого дара Азербайджана");
 
-shop.AddNewProductToDB("Виноград 'Изабелла'", 25, "Khyban.co", 2, ["grape", "grape0", "grape1", "grape2"], "Такой же томный и желанный, как настоящая красавица Изабелла из восточных сказок. Для вас только отборный виноград, упругий и свежий!");
+shop.AddNewProductToDB("Виноград 'Изабелла'", 25, 2, "Khyban.co", ["grape", "grape0", "grape1", "grape2"], "Такой же томный и желанный, как настоящая красавица Изабелла из восточных сказок. Для вас только отборный виноград, упругий и свежий!");
 
-shop.AddNewProductToDB("Гранат 'Ачик Анор'", 35, "Khyrgish.inc", 3, ["pome", "pome0", "pome1", "pome2"], "Представьте это ощущение, когда разламываешь гранат, ощущаешь этот аромат и приятную свежесть сока... Зачем представлять, если можно купить и ощутить это самому?");
+shop.AddNewProductToDB("Гранат 'Ачик Анор'", 35, 3, "Khyrgish.inc", ["pome", "pome0", "pome1", "pome2"], "Представьте это ощущение, когда разламываешь гранат, ощущаешь этот аромат и приятную свежесть сока... Зачем представлять, если можно купить и ощутить это самому?");
 
 displayCatalogElems();
 
@@ -268,7 +268,11 @@ function enumGoodsInsideCart(cart)
 
     let $cartMenuElementList = document.createElement("ol");
 
-    $cartMenuElementHeader.textContent = "В корзине:"; $cartMenuElementHeader.classList.add("cartMenuElement");
+    let $makeOrderButton = document.createElement("div");
+
+    $cartMenuElementHeader.textContent = "В корзине:"; $cartMenuElementHeader.classList.add("cartMenuHeader");
+
+    $makeOrderButton.textContent = "Сделать заказ"; $makeOrderButton.classList.add("makeOrderButton");
 
     $cartMenu.append($cartMenuElementHeader);
 
@@ -306,6 +310,9 @@ function enumGoodsInsideCart(cart)
     }
 
     $cartMenu.append($cartMenuElementList);
+
+    if (shop.cart.goods.length != 0)
+        $cartMenu.append($makeOrderButton);
 }
 
 
