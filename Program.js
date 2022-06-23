@@ -22,6 +22,22 @@ $cartMenu.classList.add("cartMenu");
 
 const $catalog = document.querySelector(".catalog");
 
+const $orderForm = document.createElement("form");
+
+$orderForm.id = "orderForm";
+
+$orderForm.setAttribute("style", "visibility: hidden;");
+
+$orderForm.setAttribute("action", "#");
+
+$orderForm.setAttribute("method", "get");
+
+let orderFormIsDisplayed = false;
+
+let productPhotoIsDisplayed = false;
+
+document.addEventListener("keydown", displayPrevOrNextPhoto);
+
 class Shop 
 {
     cart = new Cart();
@@ -61,6 +77,12 @@ class Shop
             enumGoodsInsideCart(cart);
         }
 
+        if (orderFormIsDisplayed)
+        {
+            $orderForm.innerHTML = ""
+            displayOrderFormContent();
+        }
+
     }
 
     RemoveFromCart(product, cart, calcCartPrice, calcAmountOfGoods) 
@@ -84,6 +106,20 @@ class Shop
             $cartMenu.innerHTML = "";
             enumGoodsInsideCart(cart);
         }
+
+        if (orderFormIsDisplayed)
+        {
+            $orderForm.innerHTML = ""
+            displayOrderFormContent();
+        }
+
+        if (shop.cart.goods.length == 0)
+        {
+            orderFormIsDisplayed = false;
+            $orderForm.setAttribute("style", "visibility: hidden;");
+            $orderForm.innerHTML = "";
+        }
+
     }
 
     CalculateCartPrice(cart)
@@ -242,7 +278,7 @@ $cart.addEventListener("click", showCart.bind(showCart, shop.cart));
 
 let cartIsDisplayed = true;
 
-function showCart(cart)
+function showCart()
 {
     let $cartMenuExitButton = document.createElement("div");
 
@@ -252,33 +288,44 @@ function showCart(cart)
 
     $cartMenuExitButton.addEventListener("click", closeCartMenu);
 
-    enumGoodsInsideCart(cart);
+    enumGoodsInsideCart();
 
     $cartMenuBox.append($cartMenuExitButton);
 
+    if (!orderFormIsDisplayed)
+    {
+        $cartMenu.classList.add("visible");
+    }
+
     $cartMenuBox.append($cartMenu);
+
+    $cartMenuBox.append($orderForm);
 
     $wrapper.append($cartMenuBox);
 
     cartIsDisplayed = false;
 }
-function enumGoodsInsideCart(cart)
+function enumGoodsInsideCart()
 {
     let $cartMenuElementHeader = document.createElement("h2");
 
     let $cartMenuElementList = document.createElement("ol");
 
-    let $makeOrderButton = document.createElement("div");
+    let $makeOrderButton = document.createElement("a");
 
     $cartMenuElementHeader.textContent = "В корзине:"; $cartMenuElementHeader.classList.add("cartMenuHeader");
 
-    $makeOrderButton.textContent = "Сделать заказ"; $makeOrderButton.classList.add("makeOrderButton");
+    $makeOrderButton.classList.add("makeOrderButton");
+
+    $makeOrderButton.addEventListener("click", displayOrderForm);
+
+    $makeOrderButton.textContent = "Далее";
 
     $cartMenu.append($cartMenuElementHeader);
 
     $cartMenuElementList.classList.add("cartMenuList");
 
-    for (let i = 0; i < cart.goods.length; i++)
+    for (let i = 0; i < shop.cart.goods.length; i++)
     {
         let $cartMenuElementListProduct = document.createElement("p");
 
@@ -288,7 +335,7 @@ function enumGoodsInsideCart(cart)
 
         let $removeOneButtonInCart = document.createElement("div"); $removeOneButtonInCart.textContent = "-";
 
-        $cartMenuElementListProduct.textContent = `${cart.goods[i].Name} - ${cart.goods[i].AmountInCart}. Стоимость ${cart.goods[i].AmountInCart * cart.goods[i].Price} ₽`;
+        $cartMenuElementListProduct.textContent = `${shop.cart.goods[i].Name} - ${shop.cart.goods[i].AmountInCart}. Стоимость ${shop.cart.goods[i].AmountInCart * shop.cart.goods[i].Price} ₽`;
 
         $cartMenuElementListProduct.classList.add("cartMenuListProduct");
 
@@ -372,6 +419,8 @@ function displayProductPhotos(product)
 
     $productPhoto.classList.add("productPhoto");
 
+    $productPhoto.id = `${product.id}`;
+
     $productPhotoImg.classList.add("productPhotoImg");
 
     $productPhotoImg.setAttribute("src", `img/${product.img[product.imgCount]}.jpg`)
@@ -388,13 +437,49 @@ function displayProductPhotos(product)
 
     $wrapper.append($productPhotos);
 
+    productPhotoIsDisplayed = true;
+
 }
 function closeProductPhotos($productPhotos)
 {
     $productPhotos.innerHTML = "";
 
     $productPhotos.remove();
+
+    productPhotoIsDisplayed = false;
 }
+function displayPrevOrNextPhoto(e)
+{
+    let keyPressed = e.key;
+
+    if (!(keyPressed == "ArrowLeft" || keyPressed == "ArrowRight"))
+        return;
+
+    if (!productPhotoIsDisplayed)
+        return;
+
+    let displayedProduct = document.querySelector(".productPhoto");
+
+    for (let i = 0; shop.productsDB.allProducts.length; i++)
+    {
+        if (i == parseInt(displayedProduct.id))
+        {
+            if (keyPressed == "ArrowLeft")
+            {
+                displayPrevPhoto(shop.productsDB.allProducts[i], displayedProduct, document.querySelector(".productPhotoImg"));
+            } 
+            if (keyPressed == "ArrowRight")
+            {
+                displayNextPhoto(shop.productsDB.allProducts[i], displayedProduct, document.querySelector(".productPhotoImg"));
+            }
+            return;
+        }
+
+        if (i == shop.productsDB.allProducts.length - 1)
+            return;
+    }
+}
+
 function displayPrevPhoto(product, $productPhoto, $productPhotoImg)
 {
     $productPhotoImg.remove();
@@ -436,3 +521,81 @@ function closeCartMenu()
     cartIsDisplayed = true;
 }
 
+function displayOrderForm()
+{
+    if (!orderFormIsDisplayed)
+    {
+        displayOrderFormContent();
+
+        $orderForm.setAttribute("style", "visibility: visible;");
+
+        $cartMenu.classList.remove("visible");
+
+        orderFormIsDisplayed = true;
+    } else if (orderFormIsDisplayed)
+    {
+        $orderForm.innerHTML = "";
+
+        $orderForm.setAttribute("style", "visibility: hidden;");
+
+        $cartMenu.classList.add("visible");
+
+        orderFormIsDisplayed = false;
+    }
+}
+
+function displayOrderFormContent()
+{
+    let $cartGoodsListInForm = document.createElement("ul");
+
+    let $deliveryAdress = document.createElement("textArea");
+
+    let $costumerComment = document.createElement("textarea");
+
+    let $orderFormButtons = document.createElement("div");
+
+    let $submitButton = document.createElement("input");
+
+    let $resetButton = document.createElement("input");
+
+    $deliveryAdress.classList.add("deliveryAdress");
+
+    $cartGoodsListInForm.classList.add("cartGoodsListInForm");
+
+    $costumerComment.classList.add("costumerComment");
+
+    $orderFormButtons.classList.add("orderFormButtons");
+
+    $submitButton.classList.add("submitButton");
+
+    $resetButton.classList.add("resetButton");
+
+    $deliveryAdress.setAttribute("placeholder", "Адрес доставки");
+
+    $costumerComment.setAttribute("placeholder", "Пожелания к заказу");
+
+    $submitButton.setAttribute("type", "submit");
+
+    $submitButton.setAttribute("value", "Отправить");
+
+    $resetButton.setAttribute("type", "reset");
+
+    $resetButton.setAttribute("value", "Назад");
+
+    $resetButton.addEventListener("click", displayOrderForm);
+
+    for (let i = 0; i < shop.cart.goods.length; i++)
+    {
+        let $cartGoodsInForm = document.createElement("div");
+
+        $cartGoodsInForm.classList.add("cartGoodsInForm");
+
+        $cartGoodsInForm.textContent = `${shop.cart.goods[i].Name} - ${shop.cart.goods[i].AmountInCart}`;
+
+        $cartGoodsListInForm.append($cartGoodsInForm);
+    }
+    $orderFormButtons.append($submitButton, $resetButton);
+
+    $orderForm.append($cartGoodsListInForm, $deliveryAdress, $costumerComment, $orderFormButtons);
+
+}
