@@ -12,6 +12,8 @@ let snakeTailElems = [];
 
 let direction = [1, 0];
 
+let snakeHeadLastPos = [];
+
 makeField();
 
 function makeField()
@@ -44,7 +46,16 @@ function gameInit()
 
 function getNewPos()
 {
-    return [snakeHeadPos[0] + direction[0], snakeHeadPos[1] + direction[1]]
+    return [snakeHeadPos[0] + direction[0], snakeHeadPos[1] + direction[1]];
+}
+
+function getNewHeadPos()
+{
+    snakeHeadPos = [snakeHeadPos[0] + direction[0], snakeHeadPos[1] + direction[1]];
+
+    snakeHeadPos = checkIfCrossedBorder(snakeHeadPos);
+
+    return snakeHeadPos;
 }
 
 function getPos([x, y])
@@ -55,6 +66,10 @@ function getPos([x, y])
 function headStep()
 {
     let lastElemPos = [];
+
+    snakeHeadLastPos[0] = snakeHeadPos[0];
+
+    snakeHeadLastPos[1] = snakeHeadPos[1];
 
     if (snakeTailElems.length == 0)
     {
@@ -67,15 +82,7 @@ function headStep()
 
         lastElemPos[1] = snakeTailElemsPos[snakeTailElemsPos.length - 1][1];
     }
-
-    snakeHeadPos = getNewPos();
-
-    if (checkBorder(snakeHeadPos))
-    {
-        gameOver();
-
-        gameInit();
-    }
+    snakeHeadPos = getNewHeadPos();
 
     let newHead = getPos(snakeHeadPos);
 
@@ -176,7 +183,6 @@ function makeTail(lastElemPos)
     newTailElem.classList.add("snake");
 
     snakeTailElems.push(newTailElem);
-
 }
 function tailStep(count)
 {
@@ -200,10 +206,14 @@ function tailNewPositions(count)
 
     if (count == 0)
     {
-        snakeTailElemsPos[count] = [snakeHeadPos[0] - direction[0], snakeHeadPos[1] - direction[1]];
+        snakeTailElemsPos[count][0] = snakeHeadLastPos[0];
+
+        snakeTailElemsPos[count][1] = snakeHeadLastPos[1];
     } else
     {
-        snakeTailElemsPos[count] = snakeTailElemsPos[count - 1];
+        snakeTailElemsPos[count][0] = snakeTailElemsPos[count - 1][0];
+
+        snakeTailElemsPos[count][1] = snakeTailElemsPos[count - 1][1];
     }
 
     snakeTailElems[count].classList.remove("snake");
@@ -226,12 +236,24 @@ function gameOver()
     direction = [1, 0];
 }
 
-function checkIfHeadCollapsedWithTail()
+function checkIfCrossedBorder([x, y])
 {
-    for (let i = 0; i < snakeTailElemsPos.length; i++)
+    if (x == -1)
     {
-        if (snakeHeadPos[0] == snakeTailElemsPos[i][0] && snakeHeadPos[1] == snakeTailElemsPos[i][1])
-            return true;
+        x = 9;
     }
-    return false;
+    if (x == 10)
+    {
+        x = 0;
+    }
+    if (y == -1)
+    {
+        y = 9;
+    }
+    if (y == 10)
+    {
+        y = 0;
+    }
+    return [x, y];
+
 }
